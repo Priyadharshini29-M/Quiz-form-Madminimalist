@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Landing Page Logic</title>
+    <!-- Modern fonts + variables for theming -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Updated palette: only white, black and beige shades */
+            --bg: #faf6ef;
+            /* light beige background */
+            /* off-white */
+            --card: #ffffff;
+            --text: #111111;
+            /* black */
+            --muted: #9a8f82;
+            /* muted beige */
+            --accent: #e6d9c7;
+            /* beige (lighter) for subtle accents */
+            --accent-dark: #d3c3aa;
+            /* darker beige for hover states */
+            --success: #111111;
+            /* use black for success text */
+            --danger: #111111;
+            /* use black for danger fallback */
+            --shadow: 0 6px 20px rgba(15, 23, 36, 0.08);
+            --btn-elev: 0 12px 30px rgba(17, 17, 17, 0.12);
+            --btn-elev-2: 0 6px 18px rgba(17, 17, 17, 0.08);
+            --btn-elev-pressed: 0 4px 8px rgba(17, 17, 17, 0.06);
+            --radius: 12px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            height: 100%;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+            color: var(--text);
+        }
+
+        /* ------------------ MAIN CONTENT ------------------ */
+        .page-wrapper {
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #mainContent {
+            max-width: 960px;
+            width: 100%;
+            background: var(--card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 14px;
+
+            filter: blur(8px);
+            transition: 0.36s ease;
+        }
+
+        #mainContent h1 {
+            margin-top: 0;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        /* Global p styles — desktop first */
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+        }
+
+        #mainContent p#dynamicText {
+            color: var(--muted);
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        /* Global H2 settings (desktop first) */
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+        }
+
+        /* ------------------ OVERLAYS ------------------ */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ------------------ POPUP BOX ------------------ */
+        .popup-box {
+            background: var(--card);
+            width: 92%;
+            max-width: 560px;
+            padding: 36px 26px 26px;
+            /* increase top padding so content sits below close button */
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 0.36s ease;
+            box-shadow: var(--shadow);
+            position: relative;
+            /* allow close button absolute */
+        }
+
+        /* success styling for final popup */
+        .popup-box.success {
+            border-radius: 14px;
+            padding: 28px 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%);
+            animation: fadeIn 0.36s ease, popupPop 260ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .popup-box.success h2 {
+            color: var(--success);
+            font-size: 24px;
+            margin: 0 0 6px;
+            font-weight: 800;
+        }
+
+        .popup-box.success .code-box {
+            background: linear-gradient(90deg, #fffaf0, #f6efe0);
+            border: 0;
+            color: var(--text);
+            font-size: 18px;
+            padding: 12px 20px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            border-radius: 8px;
+        }
+
+        /* final popup layout */
+        .final-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            max-width: 420px;
+        }
+
+        .final-content p {
+            color: var(--muted);
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .button-row>* {
+            flex: 1 1 0;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            height: 44px;
+        }
+
+        .copy-btn {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid rgba(15, 23, 36, 0.06);
+        }
+
+        .copy-btn:hover {
+            color: var(--text);
+        }
+
+        /* redirect CTA inside success popup */
+        .redirect-btn {
+            display: inline-flex;
+            /* match the .button-row children styling */
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            /* ensure no underline at rest */
+            background: black;
+            color: rgb(255, 255, 255);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 120ms ease, box-shadow 120ms ease, background 150ms ease;
+            box-shadow: var(--btn-elev-2);
+        }
+
+        .redirect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--btn-elev);
+            background: white;
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Make sure all redirect anchor states don't show underline */
+        .redirect-btn:link,
+        .redirect-btn:visited,
+        .redirect-btn:active {
+            text-decoration: none;
+        }
+
+        .popup-box h2 {
+            margin: 0 0 6px 0;
+            font-size: 24px;
+            /* desktop */
+            line-height: 1.15;
+            padding-right: 56px;
+            /* add horizontal gap so text doesn't butt up against close button */
+            font-weight: 700;
+        }
+
+        /* SPECIFIC: increase gap between close button and text for email popup */
+
+
+        .popup-box p,
+        .popup-box h3 {
+            color: var(--muted);
+        }
+
+        /* ------------------ FORM ELEMENTS ------------------ */
+        .popup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            /* smaller vertical spacing for a compact form */
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .popup-form input[type="email"] {
+            width: 100%;
+            max-width: 360px;
+            /* slightly more compact */
+            padding: 12px 14px;
+            font-size: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(15, 23, 36, 0.08);
+            background: #fff;
+            box-sizing: border-box;
+            transition: box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        /* custom error element for email validation */
+        .popup-form .input-error {
+            display: none;
+            /* toggled via JS */
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+            margin-top: 8px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text);
+            background: var(--accent);
+            border: 1px solid var(--accent-dark);
+        }
+
+        .popup-form input.invalid {
+            border-color: var(--text);
+            box-shadow: 0 6px 18px rgba(17, 17, 17, 0.06);
+        }
+
+        .popup-form input[type="email"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 6px 18px rgba(17, 17, 17, 0.08);
+        }
+
+        .popup-subtext {
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        /* Custom Error Message */
+        .error-message {
+            color: var(--text);
+            background: var(--accent);
+            border: 1px solid var(--accent-dark);
+            font-size: 12px;
+            margin-top: 0;
+            /* no space when hidden */
+            font-weight: 600;
+            padding: 8px 10px;
+            border-radius: 8px;
+            opacity: 0;
+            max-height: 0;
+            /* collapse to zero height when hidden */
+            overflow: hidden;
+            transition: max-height 220ms ease, opacity 200ms ease, transform 120ms ease, margin-top 120ms ease;
+            transform: translateY(-2px);
+        }
+
+        .error-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 80px;
+            /* allow some space for the message */
+            margin-top: 6px;
+            /* small space when visible */
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+            border-color: var(--text) !important;
+        }
+
+
+
+        /* ------------------ CHOICE IMAGES ------------------ */
+        .choice-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: nowrap;
+            /* keep images side-by-side */
+            overflow: hidden;
+            /* no scrollbar, static */
+            padding-bottom: 6px;
+        }
+
+        .choice-item {
+            flex: 0 1 48%;
+            /* occupy roughly half of the container, shrink if needed */
+            min-width: 110px;
+            /* allow items to shrink on small screens */
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 8px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+            box-sizing: border-box;
+        }
+
+        /* When quiz is already submitted, dim choice items */
+        .choice-item.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+            filter: grayscale(24%);
+        }
+
+        .choice-item img {
+            width: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            aspect-ratio: 16/9;
+            /* landscape */
+        }
+
+        .choice-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 28px rgba(2, 6, 23, 0.08);
+        }
+
+        .choice-item.selected {
+            border-color: var(--accent);
+            box-shadow: 0 12px 36px rgba(17, 17, 17, 0.08);
+        }
+
+        .choice-label {
+            font-weight: 600;
+            color: var(--muted);
+            font-size: 15px;
+            text-align: center;
+            white-space: normal;
+        }
+
+
+
+        /* ------------------ BUTTON ------------------ */
+        .btn {
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-btn {
+            display: block;
+            margin: 24px auto 0;
+            padding: 12px 20px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 180ms ease, transform 120ms ease, box-shadow 120ms ease;
+            box-shadow: var(--btn-elev-2);
+            transform: translateY(0);
+            will-change: transform, box-shadow;
+        }
+
+        /* Make the email submit CTA visible and in-line with theme */
+        #emailOverlay .submit-btn {
+            background: var(--text);
+            color: var(--card);
+            border-radius: 8px;
+            border: none;
+            box-shadow: var(--btn-elev-2);
+        }
+
+        #emailOverlay .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--btn-elev);
+            opacity: 0.95;
+        }
+
+        .submit-btn:hover {
+            background: rgb(255, 255, 250);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: var(--btn-elev);
+            color: #111827
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.995);
+            box-shadow: var(--btn-elev-pressed);
+        }
+
+        .submit-btn:focus {
+            outline: 3px solid rgba(17, 17, 17, 0.12);
+        }
+
+        .submit-btn.disabled {
+            opacity: 0.6;
+            cursor: default;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            margin-top: 15px;
+            padding: 10px 18px;
+            border: none;
+            background: black;
+            color: rgb(245, 245, 245);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 180ms ease, transform 120ms ease, box-shadow 120ms ease;
+            box-shadow: var(--btn-elev-2);
+            will-change: transform, box-shadow;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--btn-elev);
+            background: white;
+            color: black;
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+            box-shadow: var(--btn-elev-pressed);
+        }
+
+
+
+        /* ------------------ overlay logo removed
+           .logo styles no longer needed; page logo uses #pageLogo id */
+
+        /* sr-only utility */
+        .sr-only {
+            border: 0;
+            clip: rect(1px, 1px, 1px, 1px);
+            clip-path: inset(50%);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+            white-space: nowrap;
+        }
+
+        /* ------------------ TOAST ------------------ */
+        #toast {
+            position: fixed;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999999;
+        }
+
+        #toast.show {
+            display: block;
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+       /* ------------------ THANKS POPUP ------------------ */
+.thanks-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.thanks-popup-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ---------------- POPUP BOX ---------------- */
+.thanks-popup-box {
+    position: relative;
+    background: #fff;
+    padding: 30px 35px;
+    border-radius: 18px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: popupFade 0.4s ease forwards;
+}
+
+@keyframes popupFade {
+    0% { transform: translateY(30px) scale(0.85); opacity: 0; }
+    60% { transform: translateY(-10px) scale(1.05); opacity: 1; }
+    100% { transform: translateY(0) scale(1); }
+}
+
+/* ---------------- TEXT ---------------- */
+.thanks-popup-box h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 12px;
+}
+
+.thanks-popup-box p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* ---------------- CLOSE BUTTON ---------------- */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-btn:hover {
+    color: #000;
+}
+
+/* ---------------- MOBILE RESPONSIVE ---------------- */
+@media (max-width: 480px) {
+    .thanks-popup-box {
+        padding: 20px 22px;
+        max-width: 300px;
+        border-radius: 14px;
+    }
+    .thanks-popup-box h2 {
+        font-size: 18px;
+    }
+    .thanks-popup-box p {
+        font-size: 14px;
+    }
+    .close-btn {
+        font-size: 18px;
+        top: 8px;
+        right: 10px;
+    }
+}
+        /* make logo non-fixed: placed in normal flow above the main card */
+        #pageLogo {
+            position: static;
+            margin: 0 auto 20px;
+            text-align: center;
+            z-index: auto;
+        }
+
+        #pageLogo img {
+            width: 150px;
+            max-width: 90%;
+            height: auto;
+        }
+
+        /* small close button */
+        .close-x {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .close-x {
+            position: absolute;
+            right: 12px;
+            top: 18px;
+        }
+
+        .close-x:focus {
+            outline: 3px solid rgba(17, 17, 17, 0.18);
+            border-radius: 6px;
+        }
+
+        @media (max-width: 420px) {
+            .popup-box.success h2 {
+                font-size: 16px;
+            }
+
+            .popup-box.success .code-box {
+                font-size: 20px;
+                padding: 8px 12px;
+            }
+
+            .redirect-btn,
+            .copy-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+                height: 40px;
+            }
+
+            .final-content {
+                max-width: 360px;
+            }
+
+            .button-row>* {
+                height: 40px;
+            }
+        }
+
+        /* Mobile typography adjustments */
+        @media (max-width: 520px) {
+            h2 {
+                font-size: 18px;
+            }
+
+            p {
+                font-size: 12px;
+            }
+
+            
+
+            .popup-box h2 {
+                font-size: 18px;
+            }
+
+            .final-content p {
+                font-size: 12px;
+            }
+        }
+
+        /* Stack buttons on very small screens to ensure equal width and no wrapping */
+        @media (max-width: 420px) {
+            .button-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .button-row>* {
+                width: 100%;
+                flex: 1 1 0;
+            }
+        }
+
+        .popup-box {
+            padding: 18px;
+        }
+
+
+
+        #emailOverlay .popup-box h2 {
+            padding-top: 15px;
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
+
+        /* make the email popup tighter and aligned */
+        #emailOverlay .popup-box {
+            padding: 18px 16px;
+            max-width: 440px;
+            width: 90%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        #emailOverlay .popup-subtext {
+            margin: 4px 0 4px 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Email overlay hero image (full width inside the popup) */
+        #emailOverlay .overlay-figure {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        #emailOverlay .overlay-figure img.overlay-hero {
+            width: 100%;
+            height: auto;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        @media (max-width: 420px) {
+            #emailOverlay .overlay-figure img.overlay-hero {
+                max-height: 140px;
+            }
+        }
+
+        /* smaller submit for email overlay */
+        #emailOverlay .submit-btn {
+            margin-top: 0px;
+            padding: 10px 18px;
+            font-size: 15px;
+            min-width: 140px;
+        }
+
+        /* reduce gap inside the email overlay form: bring input and submit closer */
+        #emailOverlay .popup-form {
+            gap: 4px;
+        }
+
+        .close-x {
+            right: 10px;
+            top: 12px;
+        }
+
+        @media (max-width: 420px) {
+            .popup-box h2 {
+                padding-right: 18px;
+                font-size: 18px;
+            }
+
+            
+
+            .popup-box.success .code-box {
+                font-size: 20px;
+                padding: 8px 12px;
+                background: #fff;
+                border-radius: 10px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2),
+                    inset 0 0 10px rgba(255, 255, 255, 0.5);
+                transform: perspective(500px) translateZ(15px);
+                animation: pop3D 0.8s ease forwards, shake 0.6s ease 0.8s;
+            }
+
+            .popup-box.success .code-box::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(120deg,
+                        transparent,
+                        rgba(255, 255, 255, 0.8),
+                        transparent);
+                animation: glitter 2s infinite;
+            }
+
+            @keyframes glitter {
+                0% {
+                    left: -100%;
+                }
+
+                100% {
+                    left: 100%;
+                }
+            }
+
+            @keyframes pop3D {
+                0% {
+                    transform: perspective(500px) translateZ(-30px) scale(0.8);
+                    opacity: 0;
+                }
+
+                60% {
+                    transform: perspective(500px) translateZ(20px) scale(1.1);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: perspective(500px) translateZ(10px) scale(1);
+                }
+            }
+
+            /* Keyframes for popup 'glow' and other effects remain here; 'shake' is defined earlier */
+
+
+            .redirect-btn,
+            .copy-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .final-content {
+                max-width: 360px;
+            }
+
+            /* make popup wider on very small screens (nearly edge-to-edge) */
+            .popup-box {
+                padding: 28px 14px 18px;
+                width: calc(100% - 12px);
+                max-width: none;
+                margin: 0 6px;
+            }
+        }
+
+        /* Responsive choice cards: make them adapt and remain static (no scroll) */
+        @media (max-width: 520px) {
+            .choice-container {
+                gap: 10px;
+                padding: 0 6px;
+                justify-content: center;
+            }
+
+            .choice-item {
+                flex: 0 1 48%;
+                min-width: 0;
+                padding: 8px 6px;
+            }
+
+            .choice-item img {
+                aspect-ratio: 16/9;
+                height: 96px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            .choice-label {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .choice-item img {
+                height: 86px;
+            }
+
+            .choice-label {
+                font-size: 12px;
+            }
+
+            .choice-container {
+                gap: 8px;
+            }
+        }
+
+        /* Smallest phones: stack the cards vertically to avoid overflow */
+        @media (max-width: 360px) {
+            .choice-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .choice-item {
+                flex: 0 1 100%;
+                min-width: 0;
+                padding: 8px 6px;
+            }
+
+            .choice-item img {
+                height: 120px;
+                width: 100%;
+            }
+
+            .choice-label {
+                font-size: 13px;
+            }
+        }
+
+        /* remove any scrollbar styling as overflow is hidden */
+
+        .code-box {
+            display: inline-block;
+            background: #fffaf0;
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(17, 17, 17, 0.06);
+        }
+
+        .safe-list p {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 10px;
+
+        }
+
+        .safe-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            /* Keep a consistent banner height while remaining responsive */
+            max-height: 260px;
+        }
+
+        .banner-slider {
+            display: flex;
+            width: 100%;
+        }
+
+        .banner-slide {
+            flex: 0 0 100%;
+            display: block;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: auto;
+            /* keeps proper ratio */
+            display: block;
+            object-fit: cover;
+            /* makes sure it fills fully */
+        }
+
+        /* Optional: smooth sliding if you plan to animate */
+        #bannerSlider {
+            transition: transform 0.4s ease-in-out;
+        }
+
+        @media (max-width: 480px) {
+            .banner-slide img {
+                object-fit: cover;
+                height: 160px;
+            }
+        }
+
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .banner-slider {
+            display: flex;
+            width: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .banner-slide {
+            flex: 0 0 100%;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+
+
+        /* General Styles */
+        .heading {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2rem;
+            /* Larger font size for desktop by default */
+            color: #333;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .heading {
+                font-size: 20px;
+                /* Smaller font size for mobile screens */
+            }
+        }
+
+        /* General Styles */
+        .heading {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 3rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .heading {
+                font-size: 20px;
+            }
+        }
+
+        .video-wrapper {
+            overflow: hidden;
+            /* Hide overflow for slider */
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        .video-gallery {
+            display: flex;
+            gap: 16px;
+            animation: scrollVideos 25s linear infinite;
+            /* Auto sliding */
+        }
+
+        .video-card {
+            width: 200px;
+            height: 320px;
+            border-radius: 8px;
+            flex: 0 0 auto;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Auto-scrolling keyframes */
+        @keyframes scrollVideos {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+
+            /* Adjust depending on number of items */
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .video-gallery {
+                gap: 8px;
+                animation-duration: 18s;
+            }
+
+            .video-card {
+                width: 150px;
+                height: 240px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-gallery {
+                gap: 4px;
+                animation-duration: 15s;
+            }
+
+            .video-card {
+                width: 120px;
+                height: 180px;
+            }
+        }
+
+        /* DESKTOP LAYOUT */
+.content-split {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Reduce video size on desktop */
+.split-video {
+    flex: 1;
+    max-width: 380px;  /* REDUCED FROM 500px */
+}
+
+.split-video video {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    aspect-ratio: 9/16;
+    object-fit: cover;
+    max-height: 450px;
+      margin-bottom: 25px; 
+}
+
+/* CTA BUTTON */
+.cta-btn-large {
+   
+    padding: 14px 28px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* MAIN CONTENT */
+#mainContent {
+    flex: 1.3; /* Make content side slightly larger than video */
+    margin: 0;
+}
+
+/* MOBILE — VERTICAL STACK */
+@media (max-width: 900px) {
+    .content-split {
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .split-video {
+        order: -1; /* VIDEO FIRST */
+        width: 100%;
+        max-width: 100%; /* Full width video on mobile */
+    }
+
+    .split-video video {
+        max-height: 280px; /* CONTROL HEIGHT ON MOBILE */
+    }
+
+    #mainContent {
+        width: 100%;
+        text-align: center;
+    }
+
+    .cta-btn-large {
+        width: auto;               /* prevent 90% wide stretching */
+        padding: 10px;        /* smaller padding for small screens */
+        font-size: 14px;           /* adaptive text size */
+        display: inline-block;
+      
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="pageLogo">
+        <img src="./assets/Mad_LOGO.png" alt="Logo">
+    </div>
+
+    <div class="banner-container">
+        <div class="banner-slider" id="bannerSlider">
+            <a href="https://madminimalist.com/pages/madminimalist-innerwears" class="banner-slide banner-1">
+                <img src="./assets/banner1.jpg" alt="image-banner" />
+            </a>
+            <a href="https://madminimalist.com/pages/madminimalist-innerwears" class="banner-slide banner-2">
+                <img src="./assets/banner2.jpg" alt="image-banner" />
+            </a>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="content-split">
+            <!-- LEFT SIDE: VIDEO & CTA -->
+            <div class="split-video">
+                <video autoplay muted loop playsinline>
+                    <source src="./assets/video1.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <a id="ctaFreeBtn" 
+   href="javascript:void(0)" 
+   class="cta-btn-large">
+   Flat ₹100 Off on Innerwear!
+</a>
+
+            </div>
+
+            <!-- RIGHT SIDE: MAIN CONTENT -->
+            <div id="mainContent">
+                <h1>Welcome to MadMinimalist</h1>
+                <p id="dynamicText">
+                    This content will change based on what you select.
+                </p>
+
+                <button id="submitFinal" class="submit-btn" style="display:none;">Claim now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== EMAIL POPUP ===================== -->
+    <div id="emailOverlay" class="overlay">
+        <div class="popup-box" role="dialog" aria-labelledby="emailTitle" aria-modal="true">
+            <button class="close-x" aria-label="Close email popup" onclick="closeOverlay('emailOverlay')">✕</button>
+            <h2 id="emailTitle">Your Free Innerwear Is Waiting <br>Claim It!</h2>
+            <!-- Optional image for the collection; replace the src with your desired image. Full width inside the popup. -->
+            <figure class="overlay-figure" aria-hidden="false">
+                <img src="./assets/email.jpg" alt="MadMinimalist Collection" class="overlay-hero" />
+            </figure>
+            <p class="popup-subtext">Enter your email to get a discount code.</p>
+            <form class="popup-form" onsubmit="validateAndSubmit(event)" novalidate>
+                <label for="emailInput" class="sr-only">Email address</label>
+                <input type="email" id="emailInput" name="emailInput" placeholder="Enter your email">
+                <div id="emailError" class="error-message" role="alert" aria-live="assertive" aria-atomic="true"
+                    aria-hidden="true"></div>
+                <button type="submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================== QUESTION POPUP ===================== -->
+    <div id="questionOverlay" class="overlay">
+        <div class="popup-box">
+            <button class="close-x" aria-label="Close selection popup"
+                onclick="closeOverlay('questionOverlay')">✕</button>
+            <!-- logo removed from question overlay to keep focus on choices -->
+
+            <h2>What’s your preferred choice?</h2>
+
+            <div class="choice-container">
+                <div class="choice-item" data-choice="harmed" onclick="selectOption('harmed', this)" role="button"
+                    tabindex="0">
+                    <img src="./assets/RASHES.jpg" alt="Harmed clothing">
+                    <div class="choice-label">Dyed, Harmful and Chemical Innerwear</div>
+                </div>
+
+                <div class="choice-item" data-choice="unharmed" onclick="selectOption('unharmed', this)" role="button"
+                    tabindex="0">
+                    <img src="./assets/RASHESfree.jpg" alt="Unharmed clothing">
+                    <div class="choice-label">Undyed & Organic Cotton Innerwear</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== FINAL POPUP ===================== -->
+    <div id="finalPopup" class="overlay">
+        <div class="popup-box" id="finalPopupBox">
+            <button class="close-x" aria-label="Close final popup" onclick="closeOverlay('finalPopup')">✕</button>
+            <div id="popupContent"></div>
+        </div>
+    </div>
+
+    <!-- ===================== THANKS POPUP ===================== -->
+    <div id="thanksPopup" class="overlay">
+    <div class="popup-box thanks-popup">
+        <h2>Thank You for Participating!</h2>
+        <p>We will announce the winner for the free innerwear giveaway within 30 days.</p>
+    </div>
+</div>
+
+
+    <!-- ===================== TOAST NOTIFICATION ===================== -->
+    <div id="toast">Code Copied!</div>
+
+    <h2 class="heading">Why MadMinimalist?</h2>
+
+    <div class="video-wrapper">
+        <div class="video-gallery">
+
+            <!-- Duplicate videos for seamless infinite scroll -->
+            <!-- ORIGINAL SET -->
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video1.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video2.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video3.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video4.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video5.mp4">
+            </video>
+
+
+            <!-- DUPLICATE SET FOR SMOOTH LOOP -->
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video1.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video2.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video3.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video4.mp4">
+            </video>
+            <video class="video-card" autoplay muted loop>
+                <source src="/assets/video5.mp4">
+            </video>
+
+
+        </div>
+    </div>
+
+    <script>
+        // Change to false to enable the already-submitted behavior.
+        const SKIP_SUBMITTED_CHECK = true; // <-- temporarily skip showing the already-submitted state
+
+        /* ---------------- SHOW EMAIL POPUP AFTER 1 SECOND ---------------- */
+        setTimeout(() => {
+            // Do not show the email popup if the user already submitted
+            if (isSubmitted()) return;
+            const emailOverlay = document.getElementById("emailOverlay");
+            emailOverlay.style.display = "flex";
+            emailOverlay.setAttribute('aria-hidden', 'false');
+            const emailEl = document.getElementById('emailInput');
+            if (emailEl && typeof emailEl.focus === 'function') emailEl.focus();
+        }
+
+            , 1000);
+
+        /* ---------------- GO TO QUESTION OVERLAY ---------------- */
+        /* The asynchronous `goToQuestion()` defined later handles the server submit and
+   presentation logic (closing email overlay and opening the question overlay).
+   Keep a single implementation to avoid duplicate definitions. */
+
+        /* ---------------- CLOSE OVERLAY ---------------- */
+        function closeOverlay(id) {
+            const el = document.getElementById(id);
+            el.style.display = 'none';
+            el.setAttribute('aria-hidden', 'true');
+
+            // if closing finalPopup, remove success class
+            if (id === 'finalPopup') {
+                const finalBox = document.querySelector('#popupContent')?.parentElement;
+                if (finalBox) finalBox.classList.remove('success');
+            }
+        }
+
+        /* ---------------- USER SELECTS HARMED / UNHARMED ---------------- */
+        function selectOption(choice, el) {
+            selection = choice;
+            const mainHeading = document.querySelector('#mainContent h1');
+
+            // highlight selection (remove previous)
+            const items = document.querySelectorAll('.choice-item');
+            items.forEach(i => i.classList.remove('selected'));
+            if (el && el.classList) el.classList.add('selected');
+
+            document.getElementById("questionOverlay").style.display = "none";
+
+            // Show thanks popup
+            showThanksPopup();
+
+            // Remove blur
+            document.getElementById("mainContent").style.filter = "blur(0px)";
+
+            // Update dynamic content
+            if (choice === "harmed") {
+                if (mainHeading) mainHeading.textContent = "This Innerwear Isn’t Safe";
+                document.getElementById("dynamicText").innerHTML = ` <div class="harm-list"><p><img src="./assets/chemicals.png" class="safe-icon" />Synthetic fabrics block airflow,
+                        trapping sweat and keeping the skin constantly moist.</p><p><img src="./assets/infected.png" class="safe-icon" />Moisture buildup becomes a breeding ground for bacteria and fungi,
+                        causing rashes and infections.</p><p><img src="./assets/Dyes.png" class="safe-icon" />Cheap chemical dyes and finishes can disrupt the skin barrier and trigger irritation.</p><p><img src="./assets/sensitive.png" class="safe-icon" />Low-quality elastics create friction that damages the skin’s outer protective layer over time.</p><p><img src="./assets/sweating.png" class="safe-icon" />Poor airflow increases heat around intimate areas,
+                        disturbing natural pH and causing discomfort.</p></div>`;
+
+
+            }
+
+            else {
+                if (mainHeading) mainHeading.textContent = "Safe & Organic Innerwear";
+                document.getElementById("dynamicText").innerHTML = ` <div class="safe-list"><p><img src="./assets/touch.png" class="safe-icon" />You’ve made a wise choice by choosing organic cotton for your skin.</p><p><img src="./assets/harsh.png" class="safe-icon" />Crafted from 100% pure,
+                        chemical-free organic cotton.</p><p><img src="./assets/breathable.png" class="safe-icon" />Naturally breathable fibers keep you cool,
+                        dry,
+                        and irritation-free all day.</p><p><img src="./assets/fresh.png" class="safe-icon" />Gentle on sensitive areas — no toxic dyes,
+                        no harsh synthetics.</p><p><img src="./assets/allergies.png" class="safe-icon" />Gives clean comfort,
+                        natural freshness,
+                        and everyday confidence.</p></div>`;
+            }
+
+
+
+            // Show submit button centered and set label depending on submission state
+            const submitBtn = document.getElementById("submitFinal");
+
+            if (submitBtn) {
+                submitBtn.style.display = "block";
+
+                if (isSubmitted()) {
+                    submitBtn.textContent = 'Claimed';
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('disabled');
+                }
+
+                else {
+                    submitBtn.textContent = 'Claim now';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('disabled');
+                }
+            }
+        }
+
+        /* ---------------- FINAL SUBMIT BUTTON ---------------- */
+        document.getElementById("submitFinal").onclick = function () {
+            if (isSubmitted()) {
+                // If already submitted, show popup and prevent a second submission
+                showAlreadySubmittedPopup();
+                return;
+            }
+
+            let popup = document.getElementById("popupContent");
+            const finalBox = document.querySelector('#popupContent').parentElement; // .popup-box
+            if (finalBox) finalBox.classList.add('success');
+            const finalPopup = document.getElementById("finalPopup");
+            finalPopup.style.display = "flex";
+            finalPopup.setAttribute('aria-hidden', 'false');
+
+            // Always show success for both harmed and unharmed with same discount
+            popup.innerHTML = `<div class="final-content" role="document">
+  <h2>🎉 Congratulations!</h2>
+  <p>You won a flat ₹100 offer — copy the code and enjoy your discount.</p>
+  <h3 class="sr-only">Discount code</h3>
+  <div class="code-box" id="code" aria-live="polite">FLAT100</div>
+  <div class="button-row">
+    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+    <a class="redirect-btn" href="https://madminimalist.com/pages/madminimalist-innerwears" target="_blank" rel="noopener noreferrer">Visit Store</a>
+  </div>
+</div>
+`;
+
+            // Record submission in localStorage to prevent re-submission after refresh.
+            try {
+                localStorage.setItem('mad_hasSubmitted', 'true');
+            }
+
+            catch (e) {
+                /* ignore */
+            }
+
+            disableQuizInteraction();
+        }
+
+        /* ---------------- CLOSE POPUP ---------------- */
+        function closePopup() {
+            const finalPopupEl = document.getElementById("finalPopup");
+            finalPopupEl.style.display = "none";
+            const finalBox = document.querySelector('#popupContent')?.parentElement;
+            if (finalBox) finalBox.classList.remove('success');
+        }
+
+        /* ---------------- SUBMISSION STATE HELPERS ---------------- */
+        function isSubmitted() {
+            if (typeof SKIP_SUBMITTED_CHECK !== 'undefined' && SKIP_SUBMITTED_CHECK) return false;
+
+            try {
+                return localStorage.getItem('mad_hasSubmitted') === 'true';
+            }
+
+            catch (e) {
+                return false;
+            }
+        }
+
+        function disableQuizInteraction() {
+
+            // disable any choice selection and final submit
+            document.querySelectorAll('.choice-item').forEach(it => {
+                it.classList.add('disabled');
+                it.setAttribute('aria-disabled', 'true');
+                it.style.pointerEvents = 'none';
+                it.style.opacity = 0.6;
+            });
+            const submitBtn = document.getElementById('submitFinal');
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Claimed';
+                submitBtn.classList.add('disabled');
+            }
+        }
+
+        function showAlreadySubmittedPopup() {
+            const popup = document.getElementById('popupContent');
+            const finalBox = popup?.parentElement;
+            if (finalBox) finalBox.classList.add('success');
+            popup.innerHTML = ` <div class="final-content" role="document"><h2>🎉 Already Submitted</h2><p class="popup-subtext">We found that you already submitted the quiz — thank you !</p><h3 class="sr-only">Discount code</h3><div class="code-box" id="code" aria-live="polite">FREE100</div><div class="button-row"><button class="copy-btn" onclick="copyCode()">Copy Code</button><a class="redirect-btn" href="https://madminimalist.com/pages/madminimalist-innerwears" target="_blank" rel="noopener noreferrer">Visit Store</a></div></div>`;
+            const finalPopup = document.getElementById('finalPopup');
+
+            if (finalPopup) {
+                finalPopup.style.display = 'flex';
+                finalPopup.setAttribute('aria-hidden', 'false');
+            }
+
+            disableQuizInteraction();
+        }
+
+        /* ---------------- COPY CODE + SHOW TOAST ---------------- */
+        function copyCode() {
+            const codeText = document.getElementById("code").innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                showToast();
+
+            }).catch(err => {
+                const tempInput = document.createElement("input");
+                tempInput.value = codeText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+
+                showToast();
+            });
+        }
+
+        /* ---------------- THANKS POPUP FUNCTION ---------------- */
+        function showThanksPopup() {
+            const thanksPopup = document.getElementById("thanksPopup");
+            thanksPopup.style.display = "flex";
+            thanksPopup.setAttribute('aria-hidden', 'false');
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                thanksPopup.style.display = "none";
+                thanksPopup.setAttribute('aria-hidden', 'true');
+            }, 5000);
+        }
+
+        /* ---------------- TOAST FUNCTION ---------------- */
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }
+
+                , 2000);
+        }
+
+        /* ---------------- ACCESSIBILITY: keyboard support for choice items ---------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.choice-item').forEach(item => {
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const choice = item.dataset.choice;
+                        selectOption(choice, item);
+                    }
+                });
+            });
+
+            // close overlays on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    ['emailOverlay', 'questionOverlay', 'finalPopup', 'thanksPopup'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && el.style.display === 'flex') {
+                            el.style.display = 'none';
+                            el.setAttribute('aria-hidden', 'true');
+                        }
+                    });
+                }
+            });
+
+            // On load, check if the user already submitted earlier
+            if (isSubmitted()) {
+                // hide any overlays that might show up (email/question)
+                const emailOverlay = document.getElementById('emailOverlay');
+                const questionOverlay = document.getElementById('questionOverlay');
+
+                try {
+                    if (emailOverlay) emailOverlay.style.display = 'none';
+                }
+
+                catch (e) { }
+
+                try {
+                    if (questionOverlay) questionOverlay.style.display = 'none';
+                }
+
+                catch (e) { }
+
+                try {
+                    const thanksPopup = document.getElementById('thanksPopup');
+                    if (thanksPopup) thanksPopup.style.display = 'none';
+                }
+
+                catch (e) { }
+
+                showAlreadySubmittedPopup();
+            }
+        });
+
+
+        // When CTA button is clicked, show the same final popup
+document.getElementById("ctaFreeBtn").onclick = function () {
+
+    // If already submitted, open the "already submitted" popup
+    if (isSubmitted()) {
+        showAlreadySubmittedPopup();
+        return;
+    }
+
+    // Same popup logic as submitFinal button
+    const popup = document.getElementById("popupContent");
+    const finalBox = document.querySelector('#popupContent').parentElement;
+
+    if (finalBox) finalBox.classList.add('success');
+
+    const finalPopup = document.getElementById("finalPopup");
+    finalPopup.style.display = "flex";
+    finalPopup.setAttribute('aria-hidden', 'false');
+
+    popup.innerHTML = `
+   <div class="final-content" role="document">
+  <h2>🎉 Congratulations!</h2>
+  <p>You won a flat ₹100 offer — copy the code and enjoy your discount.</p>
+  <h3 class="sr-only">Discount code</h3>
+  <div class="code-box" id="code" aria-live="polite">FLAT100</div>
+  <div class="button-row">
+    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+    <a class="redirect-btn" href="https://madminimalist.com/pages/madminimalist-innerwears" target="_blank" rel="noopener noreferrer">Visit Store</a>
+  </div>
+</div>
+
+    `;
+
+    try {
+        localStorage.setItem('mad_hasSubmitted', 'true');
+    } catch (e) {}
+
+    disableQuizInteraction();
+};
+
+
+        let currentIndex = 0;
+        const slider = document.getElementById("bannerSlider");
+        const slides = document.querySelectorAll(".banner-slide");
+        const totalSlides = slides.length || 0;
+
+        function goToSlide(i) {
+            if (!slider || totalSlides === 0) return;
+            currentIndex = ((i % totalSlides) + totalSlides) % totalSlides;
+
+            slider.style.transform = `translateX(-$ {
+                            currentIndex * 100
+                        }
+
+                        %)`;
+        }
+
+        function nextSlide() {
+            goToSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentIndex - 1);
+        }
+
+        let autoSlideInterval = null;
+
+        function startAutoSlide() {
+            if (autoSlideInterval) return;
+            autoSlideInterval = setInterval(nextSlide, 3000);
+        }
+
+        function stopAutoSlide() {
+            if (autoSlideInterval) clearInterval(autoSlideInterval);
+            autoSlideInterval = null;
+        }
+
+        // start auto sliding
+        startAutoSlide();
+
+        // Pause on hover (desktop) and resume on leave
+        const bannerContainerEl = slider?.closest('.banner-container');
+
+        if (bannerContainerEl) {
+            bannerContainerEl.addEventListener('mouseenter', stopAutoSlide);
+            bannerContainerEl.addEventListener('mouseleave', startAutoSlide);
+        }
+
+        // Touch support: simple swipe detection to change slides
+        let touchStartX = 0;
+        let touchDeltaX = 0;
+
+        if (slider) {
+            slider.addEventListener('touchstart', (e) => {
+                stopAutoSlide();
+                touchStartX = e.touches[0].clientX;
+                touchDeltaX = 0;
+            }
+
+                , {
+                    passive: true
+                });
+
+            slider.addEventListener('touchmove', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                touchDeltaX = e.touches[0].clientX - touchStartX;
+            }
+
+                , {
+                    passive: true
+                });
+
+            slider.addEventListener('touchend', () => {
+                // threshold to trigger swipe
+                const threshold = 40;
+
+                if (touchDeltaX < -threshold) {
+                    nextSlide();
+                }
+
+                else if (touchDeltaX > threshold) {
+                    prevSlide();
+                }
+
+                touchStartX = 0;
+                touchDeltaX = 0;
+                startAutoSlide();
+            });
+        }
+
+
+        async function validateAndSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById("emailInput");
+            const errorMsg = document.getElementById("emailError");
+            const email = emailInput.value.trim();
+
+            // Simple regex for email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!email) {
+                showError("Please enter your email address.");
+                return;
+            }
+
+            if (!emailRegex.test(email)) {
+                showError("Please enter a valid email address.");
+                return;
+            }
+
+            // Clear error if valid
+            clearError();
+
+            // Send email to backend in background and proceed immediately to next flow
+            const emailVal = email;
+
+            try {
+                sendEmailInBackground(emailVal);
+            }
+
+            catch (e) {
+                console.error(e);
+            }
+
+            // proceed immediately to the question overlay without waiting for backend
+            openQuestionOverlay();
+        }
+
+        function showError(message) {
+            const emailInput = document.getElementById("emailInput");
+            const errorMsg = document.getElementById("emailError");
+            // mark invalid input visually
+            emailInput.classList.add('invalid');
+            errorMsg.setAttribute('aria-hidden', 'false');
+            errorMsg.textContent = message;
+            errorMsg.classList.add("visible");
+
+            // Move focus back to the input so screen reader users notice the error
+            if (typeof emailInput.focus === 'function') emailInput.focus();
+
+            // Add shake animation
+            emailInput.classList.add("shake");
+
+            setTimeout(() => {
+                emailInput.classList.remove("shake");
+            }
+
+                , 300);
+        }
+
+        function clearError() {
+            const emailInput = document.getElementById("emailInput");
+            const errorMsg = document.getElementById("emailError");
+            // remove invalid marker
+            emailInput.classList.remove('invalid');
+            errorMsg.setAttribute('aria-hidden', 'true');
+            errorMsg.classList.remove("visible");
+            emailInput.classList.remove("shake");
+        }
+
+        // Clear error on input
+        document.getElementById("emailInput").addEventListener("input", clearError);
+
+        // Non-blocking background email sender: don't await or block UI
+        function sendEmailInBackground(email) {
+            const url = "https://script.google.com/macros/s/AKfycbyyM3-UIGrSolAEM9o0DlEzyN4VTUNH1Orj89atEkHcgcX2NDoleV6252s2GmCE54Kl/exec"; // replace with Google Apps Script URL
+
+            try {
+                fetch(url, {
+
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+
+                    ,
+                    body: JSON.stringify({
+                        email
+                    })
+
+                }).catch(err => {
+                    console.error("Background email send failed: ", err);
+                    // Optionally queue for retry later (not implemented)
+                });
+            }
+
+            catch (err) {
+                console.error('Unable to send email in background', err);
+            }
+        }
+
+        function openQuestionOverlay() {
+            closeOverlay('emailOverlay'); // hide email popup
+            const questionOverlay = document.getElementById('questionOverlay');
+
+            if (questionOverlay) {
+                questionOverlay.style.display = 'flex';
+                questionOverlay.setAttribute('aria-hidden', 'false');
+                const firstChoice = questionOverlay.querySelector('.choice-item');
+                if (firstChoice && typeof firstChoice.focus === 'function') firstChoice.focus();
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>
