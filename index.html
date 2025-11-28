@@ -1225,6 +1225,15 @@
     }
 }
 
+@media (max-width: 768px) {
+    .cta-btn-large {
+        display: block;
+        margin: 15px auto 0 auto;  /* center horizontally */
+        text-align: center;
+        width: fit-content;
+    }
+}
+
     </style>
 </head>
 
@@ -1247,18 +1256,18 @@
     <div class="page-wrapper">
         <div class="content-split">
             <!-- LEFT SIDE: VIDEO & CTA -->
-            <div class="split-video">
-                <video autoplay muted loop playsinline>
-                    <source src="./assets/video1.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <a id="ctaFreeBtn" 
-   href="javascript:void(0)" 
-   class="cta-btn-large">
-   Flat ₹100 Off on Innerwear!
-</a>
+          <div class="split-video">
+    <video autoplay loop playsinline>
+        <source src="./assets/video1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-            </div>
+    <a id="ctaFreeBtn" 
+       href="javascript:void(0)" 
+       class="cta-btn-large">
+       Flat ₹100 Off on Innerwear!
+    </a>
+</div>
 
             <!-- RIGHT SIDE: MAIN CONTENT -->
             <div id="mainContent">
