@@ -1258,7 +1258,7 @@
             <!-- LEFT SIDE: VIDEO & CTA -->
           <div class="split-video">
     <video autoplay loop playsinline>
-        <source src="./assets/video1.mp4" type="video/mp4">
+        <source src="./assets/6(720).mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
@@ -1296,7 +1296,8 @@
                 <input type="email" id="emailInput" name="emailInput" placeholder="Enter your email">
                 <div id="emailError" class="error-message" role="alert" aria-live="assertive" aria-atomic="true"
                     aria-hidden="true"></div>
-                <button type="submit" class="submit-btn">Submit</button>
+                <button type="submit" id="emailSubmitBtn" class="submit-btn">Submit</button>
+
             </form>
         </div>
     </div>
@@ -1399,7 +1400,7 @@
 
     <script>
         // Change to false to enable the already-submitted behavior.
-        const SKIP_SUBMITTED_CHECK = true; // <-- temporarily skip showing the already-submitted state
+        const SKIP_SUBMITTED_CHECK = false; // <-- temporarily skip showing the already-submitted state
 
         /* ---------------- SHOW EMAIL POPUP AFTER 1 SECOND ---------------- */
         setTimeout(() => {
@@ -1642,6 +1643,8 @@
                         selectOption(choice, item);
                     }
                 });
+
+                 disableAllButtons();
             });
 
             // close overlays on ESC
@@ -1852,6 +1855,8 @@ document.getElementById("ctaFreeBtn").onclick = function () {
             }
 
             // proceed immediately to the question overlay without waiting for backend
+            enableAllButtons();
+
             openQuestionOverlay();
         }
 
@@ -1929,7 +1934,36 @@ document.getElementById("ctaFreeBtn").onclick = function () {
                 const firstChoice = questionOverlay.querySelector('.choice-item');
                 if (firstChoice && typeof firstChoice.focus === 'function') firstChoice.focus();
             }
+
+            
         }
+
+function disableAllButtons() {
+    document.querySelectorAll("button, a").forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+    });
+
+    // keep ONLY email submit enabled
+    const emailSubmitBtn = document.getElementById("emailSubmitBtn");
+    if (emailSubmitBtn) {
+        emailSubmitBtn.disabled = false;
+        emailSubmitBtn.style.opacity = "1";
+        emailSubmitBtn.style.pointerEvents = "auto";
+    }
+}
+
+function enableAllButtons() {
+    document.querySelectorAll("button, a").forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "auto";
+    });
+}
+
+
+
 
 
 
